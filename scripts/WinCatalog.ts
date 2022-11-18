@@ -64,6 +64,13 @@ export const WinCatalog =
 		closed_han: 0,
 		yaakuman: Yaakuman.Single
 	},
+	Pure_Thirteen_Orphans: {
+		name: "True Thirteen Orphans",
+		desc: "Win with all terminals and honors",
+		open_han: null,
+		closed_han: 0,
+		yaakuman: Yaakuman.Double
+	},
 	Pinfu: {
 		name: "Pinfu",
 		desc: "Win with a simple hand",
@@ -82,8 +89,20 @@ export const WinCatalog =
 		open_han: 3,
 		closed_han: 3
 	},
-	Yakuhai_Dragons: {
-		name: "Yakuhai Dragons",
+	Red_Dragon_Yakuhai: {
+		name: "Red Dragon Yakuhai",
+		desc: "Win with a dragon yakuhai",
+		open_han: 1,
+		closed_han: 1
+	},
+	White_Dragon_Yakuhai: {
+		name: "White Dragon Yakuhai",
+		desc: "Win with a dragon yakuhai",
+		open_han: 1,
+		closed_han: 1
+	},
+	Green_Dragon_Yakuhai: {
+		name: "Green Dragon Yakuhai",
 		desc: "Win with a dragon yakuhai",
 		open_han: 1,
 		closed_han: 1

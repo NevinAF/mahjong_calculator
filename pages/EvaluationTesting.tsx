@@ -1,6 +1,6 @@
 import TilePicker from "@components/TilePicker";
-import { Hand } from "@scripts/Evaluator";
-import { Rank, Suit, Tile, Yaakuman } from "@scripts/MahjongDataTypes";
+import { PlayerBoard } from "@scripts/Evaluator";
+import { Rank, Suit, Tile, TileGroup, Yaakuman } from "@scripts/MahjongDataTypes";
 import React, { forwardRef, useImperativeHandle } from "react";
 
 const TileGrouping = forwardRef((props: { title: string, startingTiles: number }, ref: React.Ref<{ getTiles: () => Tile[] }>) =>
@@ -65,29 +65,39 @@ export default function Home()
 	{
 		console.log("Calculating hand...");
 		
-		try
-		{
-			const closedGroup = tile_group_refs[1].current?.getTiles() ?? [];
-			const doraIndicators = tile_group_refs[0].current?.getTiles() ?? [];
-			const openGroups = tile_group_refs.slice(2).map(ref => ref.current?.getTiles() ?? []);
-			const winTile = winningTile.current?.getTile() ?? new Tile(Suit.Back, Rank.Back);
-			const hand = new Hand(openGroups, closedGroup);
-			const score = hand.scoreHand(winTile, doraIndicators, tsumo, roundWind, playerWind, riichi,  daburuRiichi, ippatsu, false, lastDrawWin);
+		const closedGroup = tile_group_refs[1].current?.getTiles() ?? [];
+		const doraIndicators = tile_group_refs[0].current?.getTiles() ?? [];
+		const openGroups = tile_group_refs.slice(2).map(ref => ref.current?.getTiles() ?? []);
+		const winTile = winningTile.current?.getTile() ?? new Tile(Suit.Back, Rank.Back);
+		const board = new PlayerBoard();
 
-			console.log(score);
-		
-			setMessage(`${score.wins.map(w =>
-			{
-				let hasYaku = w.yaakuman == Yaakuman.Single || w.yaakuman == Yaakuman.Double;
-				let han = hasYaku ? (w.yaakuman == Yaakuman.Single ? "Yaakuman!" : "Double Yaakuman!") : ((hand.isClosed() ? w.closed_han : w.open_han) + " han");
-				return w.name + ", " + han
-			}).join("\n")}\n\nTitle: ${score.title}\n\nPayout: ${score.payOrder}\n\nGroups: ${Tile.stringifyGroups(score.groups)}`);
-		}
-		catch (e: any)
+		board.visibleHandTiles = openGroups;
+		board.hiddenHandTiles = closedGroup;
+		board.doraIndicators = doraIndicators;
+		board.winningTile = winTile;
+
+		board.seatWind = playerWind;
+		board.prevalentWind = roundWind;
+		board.tsumo = tsumo;
+		board.riichi = riichi;
+		board.ippatsu = ippatsu;
+		board.doubleRiichi = daburuRiichi;
+		board.lastDrawWin = lastDrawWin;
+		board.kanWin = false;
+
+		const error = board.ValidateHand();
+
+		if (error != null)
 		{
-			console.log(e);
-			setMessage(e.toString());
+			console.log(error);
+			setMessage(error);
 		}
+		else setMessage(`${board.wins.map(w =>
+		{
+			let hasYaku = w.yaakuman == Yaakuman.Single || w.yaakuman == Yaakuman.Double;
+			let han = hasYaku ? (w.yaakuman == Yaakuman.Single ? "Yaakuman!" : "Double Yaakuman!") : ((board.closedHand ? w.closed_han : w.open_han) + " han");
+			return w.name + ", " + han
+		}).join("\n")}\n\nTitle: ${board.winTitle} (base win: ${board.baseWinAmount})\n\nPayout: ${board.payOrder}\n\nGroups: ${TileGroup.stringifyArray(board.allHandGroups)}`);
 	}
 
 	return (
